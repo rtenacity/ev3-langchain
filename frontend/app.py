@@ -22,7 +22,9 @@ def get_completion(prompt):
         messages= [
             {
                 "role" : "system",
-                "content": "You are a helpful AI assistant!"
+                "content": '''
+                You are a helpful AI assistant! Just note, your result is being returned in html, so for new lines, you need to add a <br>, especially when writing code.
+                '''
             },
             {
                 "role" : "user",
@@ -31,7 +33,7 @@ def get_completion(prompt):
         ], 
         
         temperature=0.7,
-        max_tokens=64,
+        max_tokens=200,
         top_p=1,
         n=1
         
@@ -48,7 +50,7 @@ def query_view():
         response = get_completion(prompt) 
         print(response) 
   
-        return jsonify({'response': response}) 
+        return {'response': response}
     return render_template('index.html') 
   
   
