@@ -3,7 +3,6 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import http.client
-import markdown  # Import markdown module
 import json
 
 load_dotenv()
