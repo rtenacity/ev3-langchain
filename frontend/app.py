@@ -5,10 +5,8 @@ import http.client
 import json
 from robot import Robot
 
-bot = Robot()
+#bot = Robot()
 app = Flask(__name__)
-
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def add_br_tags(input_string):
     lines = input_string.split('\n')
