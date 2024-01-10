@@ -1,8 +1,7 @@
 from time import sleep
 import math
 
-from ev3dev2.motor import MoveSteering, OUTPUT_A, OUTPUT_B, OUTPUT_C, MoveTank, SpeedPercent, follow_for_forever, MediumMotor
-from ev3dev2.wheel import EV3Tire
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MoveTank, SpeedPercent, follow_for_forever, MediumMotor
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import ColorSensor, GyroSensor, UltrasonicSensor
 
