@@ -15,8 +15,8 @@ def add_br_tags(input_string):
     return '\n'.join(lines_with_br)
 
 def get_completion(prompt):
-
-    conn = http.client.HTTPConnection("192.168.68.64", 8000)
+    conn = http.client.HTTPConnection("127.0.0.1", 8000)
+    #conn = http.client.HTTPConnection("192.168.68.64", 8000)
 
     headersList = {}
     payload = ""
@@ -43,5 +43,8 @@ def query_view():
         return jsonify({'response': response})
     return render_template('index.html')
 
+# if __name__ == "__main__":
+#     app.run(host='192.168.68.53', port=5000 )
+    
 if __name__ == "__main__":
-    app.run(host='192.168.68.53', port=5000 )
+    app.run(port=5000 )
