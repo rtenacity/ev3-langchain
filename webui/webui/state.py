@@ -1,30 +1,32 @@
 import os
 import requests
 import json
-import openai
 import reflex as rx
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from langchain.prompts.chat import ChatPromptTemplate
+from langchain.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
 from typing import Optional
 
 from langchain.schema import BaseOutputParser
 from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
-import os
+from langchain_core.runnables.history import RunnableWithMessageHistory
 load_dotenv()
 
 
 api_key = os.getenv('OPENAI_API_KEY')
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_base = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
-
-
-
 class CodeParser(BaseOutputParser):
     def parse(self, text: str):
-        return text.strip().split("'''")
+        return text.strip().split("```")
+    
+    
+def format_history(chats):
+    formatted_messages = []
+    for chat in chats:
+        question = "User: " + str(chat.question)
+        answer = "Assistant: " + str(chat.answer)
+        formatted_messages.extend((question, answer))
+    return formatted_messages
 
 template = '''
 You are a robot in a bot class that can only execute the following functions in python. You can use python syntax, providing that it is compatible with version <= 3.5. A warning, with loops. you must add a sleep statement for 0.05 seconds to avoid overheating the robot
@@ -53,7 +55,7 @@ bot.move(10)
 bot.wait(5)
 bot.stop()
 
-Based on the following user instructions, walk me through a list of steps to follow the instructions in english. Then, return python code that will execute these commands. Make sure to use the format: \'\'\' to begin the code and \'\'\' to end it.
+Based on the following user instructions, walk me through a list of steps to follow the instructions in english. Then, return python code that will execute these commands. Make sure to use the format: ``` to begin the code and ``` to end it.
 
 
 For example, here is a user input:
@@ -69,18 +71,14 @@ Sure, you can do that based on the robot commands:
 
 Now, we can generate code:
 
-\'\'\'
+```
 bot.move(20)
 bot.wait(10)
 bot.stop()
-\'\'\'
+```
 '''
 
 human_template = "User instructions: {text}"
-prompt = ChatPromptTemplate.from_messages([
-    ('system', template),
-    ('human', human_template)
-]) 
 
 model = ChatOpenAI(model = 'gpt-3.5-turbo', openai_api_key = api_key)
 
@@ -96,14 +94,6 @@ DEFAULT_CHATS = {
     "Demo": [],
 }
 
-def format_instructions(instructions):
-    # Split the instructions into lines based on the newline character
-    lines = instructions.strip().split('\n')
-    
-    # Use triple quotes for a multi-line string literal and join each line with a newline character
-    formatted_string = f"""\n{chr(10).join(lines)}\n"""
-    
-    return formatted_string
 
 def add_br_tags(input_string):
     lines = input_string.split('\n')
@@ -197,6 +187,8 @@ class State(rx.State):
             yield value
 
     async def openai_process_question(self, question: str):
+        
+        print(self.chats[self.current_chat])
         """Get the response from the API.
 
         Args:
@@ -212,40 +204,58 @@ class State(rx.State):
         yield
 
         # Build the messages.
+        
+        #print(type(qa.question))
+        
+        #print(qa.answer)
+        
+        history_messages = format_history(self.chats[self.current_chat])
+        
+        final_template = history_messages
+        
+        final_template.insert(0, ('system', template))
+        
+        final_template.append(('human', human_template))
+        
+        print(final_template)
 
-        # Remove the last mock answer.
+        prompt = ChatPromptTemplate.from_messages(final_template)
         
-        
+        # prompt = ChatPromptTemplate.from_messages([
+        #     ('system', template),  # 'template' should be a string.
+            
+        #     ('human', human_template)  # 'human_template' should be a string.
+        # ])
+
         messages = prompt.format_messages(text=question)
 
         # Start a new session to answer the question.
         
         result = model.invoke(messages)
+        
+        #print(result)
         parsed = CodeParser().parse(result.content)
         
         
-        print(parsed)
+        #print(parsed)
         
         reason, code, garbage = parsed 
 
-        
         answer_text = add_br_tags(reason)
         
         self.chats[self.current_chat][-1].answer += answer_text
         self.chats = self.chats
         
         answer_text = rf"""
-```
+```python3
 {code}
 ```
-"""
+"""     
 
-
-
+        #print(self.chats[self.current_chat])
         
         self.chats[self.current_chat][-1].answer += answer_text
         self.chats = self.chats
-
 
         # Toggle the processing flag.
         self.processing = False
