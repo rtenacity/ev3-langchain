@@ -212,32 +212,15 @@ class State(rx.State):
         history_messages = format_history(self.chats[self.current_chat])
         
         final_template = history_messages
-        
         final_template.insert(0, ('system', template))
-        
         final_template.append(('human', human_template))
-        
-        print(final_template)
 
         prompt = ChatPromptTemplate.from_messages(final_template)
-        
-        # prompt = ChatPromptTemplate.from_messages([
-        #     ('system', template),  # 'template' should be a string.
-            
-        #     ('human', human_template)  # 'human_template' should be a string.
-        # ])
-
         messages = prompt.format_messages(text=question)
-
-        # Start a new session to answer the question.
         
         result = model.invoke(messages)
         
-        #print(result)
         parsed = CodeParser().parse(result.content)
-        
-        
-        #print(parsed)
         
         reason, code, garbage = parsed 
 
