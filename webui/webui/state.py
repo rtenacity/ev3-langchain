@@ -187,27 +187,16 @@ class State(rx.State):
             yield value
 
     async def openai_process_question(self, question: str):
-        
-        print(self.chats[self.current_chat])
         """Get the response from the API.
 
         Args:
             form_data: A dict with the current question.
         """
 
-        # Add the question to the list of questions.
         qa = QA(question=question, answer="")
         self.chats[self.current_chat].append(qa)
-
-        # Clear the input and start the processing.
         self.processing = True
         yield
-
-        # Build the messages.
-        
-        #print(type(qa.question))
-        
-        #print(qa.answer)
         
         history_messages = format_history(self.chats[self.current_chat])
         
