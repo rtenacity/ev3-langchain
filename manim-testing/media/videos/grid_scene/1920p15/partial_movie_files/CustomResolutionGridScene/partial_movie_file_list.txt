@@ -1,2 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/Users/rohanarni/Projects/robot-langchain/manim-testing/media/videos/grid_scene/1920p15/partial_movie_files/CustomResolutionGridScene/744023753_4205520711_1867911055.mp4'
