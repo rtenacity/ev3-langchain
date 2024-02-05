@@ -6,8 +6,7 @@ from webui import styles
 from webui.components import chat, modal, navbar, sidebar
 from webui.state import State
 
-@rx.page(title="RobotAI"
-)
+@rx.page(title="RobotAI")
 def index() -> rx.Component:
     """The main app."""
     return rx.vstack(
