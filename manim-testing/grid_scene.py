@@ -3,16 +3,23 @@ from manim import Scene, Square, BLUE, RED, MoveAlongPath, Line, NumberPlane, BL
 # Set the configuration for resolution and background color
 config.pixel_height = 1920
 config.pixel_width = 1920
-config.frame_height = 8.0  # Adjust if necessary to fit the grid
-config.frame_width = 8.0   # Adjust if necessary to fit the grid
+config.frame_height = 16.0  # Adjust if necessary to fit the grid
+config.frame_width = 16.0   # Adjust if necessary to fit the grid
 config.background_color = WHITE
 
 
 class Bot:
     def __init__(self, scene):
         self.scene = scene
-        self.blue_box = Square(color=BLUE).scale(0.5)  # Scale to fit the 50x50 grid visually
-        self.red_box = Square(color=RED).scale(0.5)
+        # Adjust the scale so that each box is 3 grid spaces by 3 grid spaces
+        # Assuming each grid space maps to a certain scale in Manim's units
+        grid_space_scale = 0.2  # Adjust this scale based on visual inspection
+        self.blue_box = Square(color=BLUE).scale(grid_space_scale)
+        self.red_box = Square(color=RED).scale(grid_space_scale)
+        
+        # Set initial positions based on the grid
+        self.blue_box.move_to(self._grid_to_scene_coords((13, 1)))
+        self.red_box.move_to(self._grid_to_scene_coords((26, 1)))
     
     def move_to_point(self, box, point, run_time=2):
         """
@@ -94,9 +101,11 @@ class TestScene(MyScene):
         # Test moving the blue box to the center
         self.bot.move_blue_box((25, 25))
         self.wait(1)  # Wait a second to observe the move
+        self.bot.move_blue_box((25, 0))
+        self.wait(1)
         
         # Test moving the red box to a corner
-        self.bot.move_red_box((0, 0))
+        self.bot.move_red_box((30, 25))
         self.wait(1)
         
         # Add more movements as needed for testing
