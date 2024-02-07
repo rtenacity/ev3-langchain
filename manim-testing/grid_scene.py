@@ -126,48 +126,47 @@ class AIScene(RobotScene):
     def construct(self):
         super().construct()
 
-        # Place an item at load zone A
-        item = Item(self, color=GREEN, position=(5, 40))
+        # Load an item at load zone D
+        item = Item(self, color=GREEN, position=(45, 40))
         self.add(item.item)
 
-        # Move the blue robot to pick up the item
-        self.play(self.blue_bot.move_to_point((5, 40)))
+        # Move the red robot to load zone D to pick up the item
+        self.play(self.red_bot.move_to_point((43, 40)))
         self.wait(1)
 
-        # Pick up the item
-        self.play(self.blue_bot.pick_up_item(item))
-        self.wait(1)
-
-        # Move the blue robot to the barrier on the left side
-        self.play(self.blue_bot.move_to_point((23, 25)))
-        self.wait(1)
-
-        # Place the item on the barrier
-        self.play(self.blue_bot.place_item((25, 25)))
-        self.wait(1)
-
-        # Move the red robot to pick up the item from the barrier
-        self.play(self.red_bot.move_to_point((27, 25)))
-        self.wait(1)
-
-        # Pick up the item from the barrier
+        # Pick up the item from load zone D
         self.play(self.red_bot.pick_up_item(item))
         self.wait(1)
 
-        # Move the red robot to load zone D
-        self.play(self.red_bot.move_to_point((45, 40)))
+        # Move the red robot to the barrier
+        self.play(self.red_bot.move_to_point((27, 25)))
         self.wait(1)
 
-        # Place the item at load zone D
-        self.play(self.red_bot.place_item((45, 40)))
+        # Place the item on the barrier
+        self.play(self.red_bot.place_item((25, 25)))
         self.wait(1)
 
-        # Move the red robot back to its initial position
-        self.play(self.red_bot.move_to_point((37.5, 25)))
+        # Move the blue robot to the barrier to pick up the item
+        self.play(self.blue_bot.move_to_point((23, 25)))
+        self.wait(1)
+
+        # Pick up the item from the barrier
+        self.play(self.blue_bot.pick_up_item(item))
+        self.wait(1)
+
+        # Move the blue robot to load zone A
+        self.play(self.blue_bot.move_to_point((5, 40)))
+        self.wait(1)
+
+        # Place the item at load zone A
+        self.play(self.blue_bot.place_item((5, 40)))
         self.wait(1)
 
 
 
 
-AIScene = AIScene()
-AIScene.render()
+
+
+
+AIScene2 = AIScene()
+AIScene2.render()
