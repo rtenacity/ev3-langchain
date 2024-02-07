@@ -97,35 +97,27 @@ class RobotScene(Scene):
         self.red_bot = Bot(self, RED, (37.5, 25))
         self.add(self.red_bot.box)
 
-        # Define load zone dimensions and colors
         load_zone_color = BLUE
         load_zone_fill_opacity = 0.5
         left_positions = [(5, 40), (5, 25), (5, 10)]
         right_positions = [(45, 40), (45, 25), (45, 10)]
         load_zone_labels = ["A", "B", "C", "D", "E", "F"]
 
-        # Create, label, and add left side load zones
         for i, pos in enumerate(left_positions):
             zone = Rectangle(width=3, height=2, color=load_zone_color, fill_opacity=load_zone_fill_opacity)
             zone.move_to(grid.c2p(*pos))
             self.add(zone)
-            
-            # Create and add label with larger font size and black color
+
             label = Text(load_zone_labels[i], font_size=36, color=BLACK).move_to(zone)
             self.add(label)
 
-        # Create, label, and add right side load zones
         for i, pos in enumerate(right_positions, start=len(left_positions)):
             zone = Rectangle(width=3, height=2, color=load_zone_color, fill_opacity=load_zone_fill_opacity)
             zone.move_to(grid.c2p(*pos))
             self.add(zone)
-            
-            # Create and add label with larger font size and black color
+
             label = Text(load_zone_labels[i], font_size=36, color=BLACK).move_to(zone)
             self.add(label)
-
-
-
 
     def construct(self):
 
@@ -137,7 +129,7 @@ class TestScene(RobotScene):
 
         item = Item(self, color=GREEN, position=(5, 25))
         self.add(item.item)
-        
+
         self.play(self.blue_bot.move_to_point((8, 25)))
         self.wait(1)
 
@@ -148,6 +140,6 @@ class TestScene(RobotScene):
         self.wait(1)
 
         self.play(self.blue_bot.place_item((25, 25)))
-        
+
         self.play(self.blue_bot.move_to_point((12.5, 25)))
         self.wait(1)
