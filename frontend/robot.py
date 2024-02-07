@@ -14,6 +14,7 @@ class Robot:
         self.claw = MediumMotor(OUTPUT_A)
         
     def move(self, speed):
+        
         self.tank.follow_gyro_angle(
         kp=11.3, ki=0.05, kd=3.2,
         speed=SpeedPercent(speed),
