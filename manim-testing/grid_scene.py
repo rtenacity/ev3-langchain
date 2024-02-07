@@ -142,9 +142,9 @@ class AIScene(RobotScene):
 
         self.play(self.blue_bot.place_item((25, 25)))
 
-        # self.play(self.blue_bot.move_to_point((12.5, 25)))
-        # self.wait(1)
+        self.play(self.blue_bot.move_to_point((12.5, 25)))
+        self.wait(1)
 
-if 'name' == 'main':
-    scene = AIScene()
-    scene.render()
+
+scene = AIScene()
+scene.render()
