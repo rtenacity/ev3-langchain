@@ -1,9 +1,9 @@
-from manim import Scene, Square, BLUE, RED, MoveAlongPath, Line, NumberPlane, BLACK, config, WHITE
+from manim import Scene, Square, Circle, BLUE, RED, GREEN, MoveAlongPath, Line, NumberPlane, BLACK, config, WHITE, AnimationGroup, ApplyMethod, UP, DOWN, LEFT, Rectangle, Text
 
 config.pixel_height = 1920
 config.pixel_width = 1920
 config.frame_height = 16.0
-config.frame_width = 16.0 
+config.frame_width = 16.0
 config.background_color = WHITE
 
 class Bot:
@@ -12,47 +12,142 @@ class Bot:
         grid_space_scale = 0.2
         self.box = Square(color=color).scale(3*grid_space_scale)
         self.box.move_to(self._grid_to_scene_coords(initial_position))
-    
+        self.held_item = None  
+
     def move_to_point(self, point, run_time=2):
         target_position = self._grid_to_scene_coords(point)
-        path = Line(self.box.get_center(), target_position, color=self.box.color)
-        self.scene.play(MoveAlongPath(self.box, path), run_time=run_time)
-    
+        bot_move_animation = ApplyMethod(self.box.move_to, target_position)
+
+        if self.held_item is not None:
+
+            item_move_animation = ApplyMethod(self.held_item.item.move_to, target_position)
+
+            return AnimationGroup(bot_move_animation, item_move_animation, lag_ratio=0)
+        else:
+            return bot_move_animation
+
+    def pick_up_item(self, item):
+
+        if self._is_close_to(item):
+            self.held_item = item
+            item.being_held = True
+
+            bot_center = self.box.get_center()
+
+            move_to_bot_center = ApplyMethod(item.item.move_to, bot_center)
+            return move_to_bot_center
+        else:
+            return None
+
+    def place_item(self, new_position):
+        if self.held_item is not None:
+            animation = ApplyMethod(self.held_item.item.move_to, self._grid_to_scene_coords(new_position))
+            self.held_item.being_held = False
+            self.held_item = None
+            return animation
+        else:
+            return None
+
+    def _is_close_to(self, item):
+
+        bot_pos = self.box.get_center()
+        item_pos = item.item.get_center()
+        return abs(bot_pos[0] - item_pos[0]) <= 1 and abs(bot_pos[1] - item_pos[1]) <= 1
+
     def _grid_to_scene_coords(self, point):
         x, y = point
         scene_x = ((x - 25) * 16 / 50)
         scene_y = ((y - 25) * 16 / 50)
         return scene_x, scene_y, 0
 
-class MyScene(Scene):
-    def construct(self):
+class Item:
+    def __init__(self, scene, color, position):
+        self.scene = scene
+        grid_space_scale = 0.1  
+        self.item = Circle(color=color).scale(3*grid_space_scale)  
+        self.item.move_to(self._grid_to_scene_coords(position))
+        self.being_held = False  
+
+    def move_to(self, new_position):
+        self.item.move_to(new_position)
+
+    def _grid_to_scene_coords(self, point):
+        x, y = point
+        scene_x = ((x - 25) * 16 / 50)
+        scene_y = ((y - 25) * 16 / 50)
+        return scene_x, scene_y, 0
+
+class RobotScene(Scene):
+    def setup_scene(self):
         grid = NumberPlane(
             x_range=[0, 50, 5],
             y_range=[0, 50, 5],
             x_length=16,
             y_length=16,
-            background_line_style={
-                "stroke_color": BLACK,
-                "stroke_width": 1,
-            }
+            background_line_style={"stroke_color": BLACK, "stroke_width": 1}
         )
-        grid.set_stroke(BLACK, 1)
         self.add(grid)
+
         line = Line(start=grid.c2p(25, 0), end=grid.c2p(25, 50), color=BLACK, stroke_width=2)
         self.add(line)
-        
-        # Create instances of Bot for blue and red boxes
-        self.blue_box_bot = Bot(self, BLUE, (12.5, 25))
-        self.red_box_bot = Bot(self, RED, (37.5, 25))
-        self.add(self.blue_box_bot.box, self.red_box_bot.box)
 
-class TestScene(MyScene):
+        self.blue_bot = Bot(self, BLUE, (12.5, 25))
+        self.add(self.blue_bot.box)
+
+        self.red_bot = Bot(self, RED, (37.5, 25))
+        self.add(self.red_bot.box)
+
+        # Define load zone dimensions and colors
+        load_zone_color = BLUE
+        load_zone_fill_opacity = 0.5
+        left_positions = [(5, 40), (5, 25), (5, 10)]
+        right_positions = [(45, 40), (45, 25), (45, 10)]
+        load_zone_labels = ["A", "B", "C", "D", "E", "F"]
+
+        # Create, label, and add left side load zones
+        for i, pos in enumerate(left_positions):
+            zone = Rectangle(width=3, height=2, color=load_zone_color, fill_opacity=load_zone_fill_opacity)
+            zone.move_to(grid.c2p(*pos))
+            self.add(zone)
+            
+            # Create and add label with larger font size and black color
+            label = Text(load_zone_labels[i], font_size=36, color=BLACK).move_to(zone)
+            self.add(label)
+
+        # Create, label, and add right side load zones
+        for i, pos in enumerate(right_positions, start=len(left_positions)):
+            zone = Rectangle(width=3, height=2, color=load_zone_color, fill_opacity=load_zone_fill_opacity)
+            zone.move_to(grid.c2p(*pos))
+            self.add(zone)
+            
+            # Create and add label with larger font size and black color
+            label = Text(load_zone_labels[i], font_size=36, color=BLACK).move_to(zone)
+            self.add(label)
+
+
+
+
     def construct(self):
-        super().construct()
-        self.blue_box_bot.move_to_point((12.5, 25))
-        self.wait(1)
-        self.blue_box_bot.move_to_point((12.5, 50))
-        self.wait(1)
-        self.red_box_bot.move_to_point((25, 25))
+
+        self.setup_scene()
+
+class TestScene(RobotScene):
+    def construct(self):
+        super().construct() 
+
+        item = Item(self, color=GREEN, position=(5, 25))
+        self.add(item.item)
+        
+        self.play(self.blue_bot.move_to_point((8, 25)))
         self.wait(1)
 
+        self.play(self.blue_bot.pick_up_item(item))
+        self.wait(1)
+
+        self.play(self.blue_bot.move_to_point((20, 25)))
+        self.wait(1)
+
+        self.play(self.blue_bot.place_item((25, 25)))
+        
+        self.play(self.blue_bot.move_to_point((12.5, 25)))
+        self.wait(1)
