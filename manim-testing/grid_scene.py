@@ -1,6 +1,4 @@
 from manim import Scene, Square, Circle, BLUE, RED, GREEN, MoveAlongPath, Line, NumberPlane, BLACK, config, WHITE, AnimationGroup, ApplyMethod, UP, DOWN, LEFT, Rectangle, Text
-import subprocess
-
 
 config.pixel_height = 1920
 config.pixel_width = 1920
@@ -123,28 +121,53 @@ class RobotScene(Scene):
 
     def construct(self):
         self.setup_scene()
-
+        
 class AIScene(RobotScene):
     def construct(self):
-        super().construct() 
+        super().construct()
 
-        item = Item(self, color=GREEN, position=(5, 25))
+        # Place an item at load zone A
+        item = Item(self, color=GREEN, position=(5, 40))
         self.add(item.item)
 
-        self.play(self.blue_bot.move_to_point((8, 25)))
+        # Move the blue robot to pick up the item
+        self.play(self.blue_bot.move_to_point((5, 40)))
         self.wait(1)
 
+        # Pick up the item
         self.play(self.blue_bot.pick_up_item(item))
         self.wait(1)
 
-        self.play(self.blue_bot.move_to_point((22, 25)))
+        # Move the blue robot to the barrier on the left side
+        self.play(self.blue_bot.move_to_point((23, 25)))
         self.wait(1)
 
+        # Place the item on the barrier
         self.play(self.blue_bot.place_item((25, 25)))
+        self.wait(1)
 
-        self.play(self.blue_bot.move_to_point((12.5, 25)))
+        # Move the red robot to pick up the item from the barrier
+        self.play(self.red_bot.move_to_point((27, 25)))
+        self.wait(1)
+
+        # Pick up the item from the barrier
+        self.play(self.red_bot.pick_up_item(item))
+        self.wait(1)
+
+        # Move the red robot to load zone D
+        self.play(self.red_bot.move_to_point((45, 40)))
+        self.wait(1)
+
+        # Place the item at load zone D
+        self.play(self.red_bot.place_item((45, 40)))
+        self.wait(1)
+
+        # Move the red robot back to its initial position
+        self.play(self.red_bot.move_to_point((37.5, 25)))
         self.wait(1)
 
 
-scene = AIScene()
-scene.render()
+
+
+AIScene = AIScene()
+AIScene.render()
