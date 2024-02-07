@@ -1,4 +1,6 @@
 from manim import Scene, Square, Circle, BLUE, RED, GREEN, MoveAlongPath, Line, NumberPlane, BLACK, config, WHITE, AnimationGroup, ApplyMethod, UP, DOWN, LEFT, Rectangle, Text
+import subprocess
+
 
 config.pixel_height = 1920
 config.pixel_width = 1920
@@ -88,7 +90,7 @@ class RobotScene(Scene):
         )
         self.add(grid)
 
-        line = Line(start=grid.c2p(25, 0), end=grid.c2p(25, 50), color=BLACK, stroke_width=2)
+        line = Line(start=grid.c2p(25, 0), end=grid.c2p(25, 50), color=BLACK, stroke_width=3)
         self.add(line)
 
         self.blue_bot = Bot(self, BLUE, (12.5, 25))
@@ -120,10 +122,9 @@ class RobotScene(Scene):
             self.add(label)
 
     def construct(self):
-
         self.setup_scene()
 
-class TestScene(RobotScene):
+class AIScene(RobotScene):
     def construct(self):
         super().construct() 
 
@@ -136,10 +137,14 @@ class TestScene(RobotScene):
         self.play(self.blue_bot.pick_up_item(item))
         self.wait(1)
 
-        self.play(self.blue_bot.move_to_point((20, 25)))
+        self.play(self.blue_bot.move_to_point((22, 25)))
         self.wait(1)
 
         self.play(self.blue_bot.place_item((25, 25)))
 
-        self.play(self.blue_bot.move_to_point((12.5, 25)))
-        self.wait(1)
+        # self.play(self.blue_bot.move_to_point((12.5, 25)))
+        # self.wait(1)
+
+if 'name' == 'main':
+    scene = AIScene()
+    scene.render()
